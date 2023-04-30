@@ -1,35 +1,51 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-import ExpenseList from './components/ExpenseList';
-import NewExpense from './components/newExpense/NewExpense';
-const dummyExpenses = [
-  {
-    id: 'e1',
-    title: 'Car Insurance',
-    amount: 568.45,
-    date: new Date(2023, 2, 4),
-  },
-  { id: 'e2', title: 'Lunch', amount: 58.45, date: new Date(2023, 1, 28) },
-  {
-    id: 'e3',
-    title: 'Electricity',
-    amount: 450.76,
-    date: new Date(2023, 3, 1),
-  },
-];
-export default function App() {
-  const [expenses, setExpenses] = useState(dummyExpenses);
+import CourseGoalList from './components/CourseGoals/CourseGoalList/CourseGoalList';
+import CourseInput from './components/CourseGoals/CourseInput/CourseInput';
+import './App.css';
 
-  const addExpenseHandler = (expense) => {
-    setExpenses((prevExpenses) => {
-      return [expense, ...prevExpenses];
+const App = () => {
+  const [courseGoals, setCourseGoals] = useState([
+    { text: 'Do all exercises!', id: 'g1' },
+    { text: 'Finish the course!', id: 'g2' },
+  ]);
+
+  const addGoalHandler = (enteredText) => {
+    setCourseGoals((prevGoals) => {
+      const updatedGoals = [...prevGoals];
+      updatedGoals.unshift({
+        text: enteredText,
+        id: Math.random(),
+      });
+      return updatedGoals;
     });
   };
 
-  return (
-    <div>
-      <NewExpense onAddExpense={addExpenseHandler} />
-      <ExpenseList expenses={expenses} />
-    </div>
+  const deleteItemHandler = (goalId) => {
+    setCourseGoals((prevGoals) => {
+      const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
+      return updatedGoals;
+    });
+  };
+
+  let content = (
+    <p style={{ textAlign: 'center' }}>No goals found. Maybe add one?</p>
   );
-}
+
+  if (courseGoals.length > 0) {
+    content = (
+      <CourseGoalList items={courseGoals} onDeleteItem={deleteItemHandler} />
+    );
+  }
+
+  return (
+    <>
+      <section id="goal-form">
+        <CourseInput onAddGoal={addGoalHandler} />
+      </section>
+      <section id="goals">{content}</section>
+    </>
+  );
+};
+
+export default App;
