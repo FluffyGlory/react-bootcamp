@@ -1,51 +1,43 @@
-import React, { useState } from 'react';
+import ResultTable from './components/ResultTable';
+import MainHeader from './components/MainHeader';
+import DataForm from './components/DataForm';
+import { useState } from 'react';
+function App() {
+  const [userInput, setUserInput] = useState(null);
+  const calculateHandler = (userInput) => {
+    setUserInput(userInput);
+  };
+  const yearlyData = [];
+  if (userInput) {
+    let currentSavings = +userInput['current-savings'];
+    const yearlyContribution = +userInput['yearly-contribution'];
+    const expectedReturn = +userInput['expected-return'] / 100;
+    const duration = +userInput.duration;
 
-import CourseGoalList from './components/CourseGoals/CourseGoalList/CourseGoalList';
-import CourseInput from './components/CourseGoals/CourseInput/CourseInput';
-import './App.css';
-
-const App = () => {
-  const [courseGoals, setCourseGoals] = useState([
-    { text: 'Do all exercises!', id: 'g1' },
-    { text: 'Finish the course!', id: 'g2' },
-  ]);
-
-  const addGoalHandler = (enteredText) => {
-    setCourseGoals((prevGoals) => {
-      const updatedGoals = [...prevGoals];
-      updatedGoals.unshift({
-        text: enteredText,
-        id: Math.random(),
+    for (let i = 0; i < duration; i++) {
+      const yearlyInterest = currentSavings * expectedReturn;
+      currentSavings += yearlyInterest + yearlyContribution;
+      yearlyData.push({
+        year: i + 1,
+        yearlyInterest: yearlyInterest,
+        savingsEndOfYear: currentSavings,
+        yearlyContribution: yearlyContribution,
       });
-      return updatedGoals;
-    });
-  };
-
-  const deleteItemHandler = (goalId) => {
-    setCourseGoals((prevGoals) => {
-      const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
-      return updatedGoals;
-    });
-  };
-
-  let content = (
-    <p style={{ textAlign: 'center' }}>No goals found. Maybe add one?</p>
-  );
-
-  if (courseGoals.length > 0) {
-    content = (
-      <CourseGoalList items={courseGoals} onDeleteItem={deleteItemHandler} />
-    );
+    }
   }
-
   return (
-    <>
-      <section id="goal-form">
-        <CourseInput onAddGoal={addGoalHandler} />
-      </section>
-      <section id="goals">{content}</section>
-    </>
+    <div>
+      <MainHeader />
+
+      <DataForm onCalculate={calculateHandler} />
+      {!userInput && (
+        <p style={{ textAlign: 'center' }}>Investment not calculated.</p>
+      )}
+      {userInput && (
+        <ResultTable data={yearlyData} initial={userInput['current-savings']} />
+      )}
+    </div>
   );
-};
+}
 
 export default App;
